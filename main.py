@@ -6,9 +6,6 @@ import time
 import random
 from preferences import prefs
 
-WX_PUSHER_APP_TOKEN = os.environ.get("WX_PUSHER_APP_TOKEN", "")
-WX_PUSHER_UID = os.environ.get("WX_PUSHER_UID", "")
-
 s = set()
 ip = ""
 total_retry_count = 0
@@ -106,20 +103,6 @@ def checkIn(user, pwd):
         Retry[user] = pwd
         s_list[user] = "签到失败";
 
-def wx_pusher_send_by_webapi(title, msg):
-    if not WX_PUSHER_APP_TOKEN or not WX_PUSHER_UID: return False;
-    webapi = 'http://wxpusher.zjiecode.com/api/send/message'
-    data = {
-        "appToken": WX_PUSHER_APP_TOKEN,
-        "content": msg,
-        "summary": title,
-        "contentType": 1,
-        "uids": [WX_PUSHER_UID],
-    }
-    result = requests.post(url=webapi, json=data)
-    if result.ok:
-        return result.json()["code"] == 1000;
-
 def loginhash(data):
     pattern = r'loginhash.*?=(.*?)[\'"]>'
     match = re.search(pattern, data, re.IGNORECASE | re.UNICODE)
@@ -159,7 +142,6 @@ def start():
                 time.sleep(3)
         start()
         return;
-    if s_list: wx_pusher_send_by_webapi("MT论坛签到通知", json.dumps(s_list, indent=4, ensure_ascii=False));
 
 ACCOUNTS = os.environ.get("ACCOUNTS", "")
 IPS = os.environ.get("IPS", "")
