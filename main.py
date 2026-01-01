@@ -177,7 +177,7 @@ for duo in ACCOUNTS.split(","):
     password = password.strip()
     YiQianDao = prefs.get(username, "") == prefs.getTime()
     if YiQianDao: print(username, "已签到", "跳过")
-    if username and password and !YiQianDao:
+    if username and password and not YiQianDao:
         accounts_list[username] = password
 s.update([ip for ip in IPS.split("\n") if ip.strip()])
 start()
