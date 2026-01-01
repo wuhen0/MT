@@ -1,6 +1,6 @@
 from sqlitedict import SqliteDict
 
-class AppPreferences:
+class Preferences:
     _instance = None
     
     def __new__(cls, db_path="app_prefs.sqlite"):
@@ -29,4 +29,4 @@ class AppPreferences:
         self.db.close()
         self._instance = None
 
-prefs = AppPreferences()
+prefs = Preferences()
