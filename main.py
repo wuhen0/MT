@@ -62,8 +62,8 @@ def lo():
                 if len(successful_proxies) >= 10: break
     successful_proxies.sort(key=lambda x: x[1])
     print("ip响应时间:")
-    for proxy, req_time in successful_proxies:
-        print(f"{req_time}ms")
+    for index, (proxy, req_time) in enumerate(successful_proxies, 1):
+        print(f"{index}: {req_time}ms")
         myset.add(proxy)
 
 def checkIn(user, pwd, ip):
