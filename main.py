@@ -176,5 +176,19 @@ for duo in ACCOUNTS.split(","):
 myset.update([ip for ip in IPS.split("\n") if ip.strip()])
 if accounts_list:
     lo()
+    try:
+        with open("y.txt", "w", encoding="utf-8") as f:
+            f.write("\n".join(myset))
+            try:
+            os.system('git config --local user.name "github-actions[bot]" >/dev/null 2>&1')
+            os.system('git config --local user.email "github-actions[bot]@users.noreply.github.com" >/dev/null 2>&1')
+            os.system('git config pull.rebase true >/dev/null 2>&1')
+            os.system(f'git add -A >/dev/null 2>&1')
+            os.system('git commit -m "更新" >/dev/null 2>&1')
+            os.system('git push --quiet --force-with-lease')
+        except Exception as e:
+            pass
+    except Exception as e:
+        pass
 if myset:
     start()
