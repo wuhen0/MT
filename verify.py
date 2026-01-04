@@ -21,7 +21,7 @@ def validate_ip_port(ip, port):
 
 def save():
     fileName = "src/verify.txt"
-    fileName2 = "ips.txt"
+    fileName2 = "src/ips.txt"
     try:
         with open(fileName, "w", encoding="utf-8") as f:
             f.write("\n".join(nVerify))
@@ -45,7 +45,7 @@ def save():
 
 def load():
     fileName = "src/verify.txt"
-    fileName2 = "ips.txt"
+    fileName2 = "src/ips.txt"
     try:
         with open(fileName, "r", encoding="utf-8") as f:
             for line in f:
