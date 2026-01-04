@@ -35,16 +35,10 @@ def save():
     try:
         os.system('git config --local user.name "github-actions[bot]" >/dev/null 2>&1')
         os.system('git config --local user.email "github-actions[bot]@users.noreply.github.com" >/dev/null 2>&1')
-        pull_result = os.system('git pull --quiet --no-rebase >/dev/null 2>&1')
-        if pull_result != 0:
-            os.system('git stash >/dev/null 2>&1')
-            os.system('git pull --quiet >/dev/null 2>&1')
-            os.system('git stash pop >/dev/null 2>&1')
-        if os.system(f'git add {fileName} {fileName2} >/dev/null 2>&1') == 0:
-            commit_result = os.system('git commit -m "更新" >/dev/null 2>&1')
-            if commit_result == 0:
-                os.system('git pull --quiet >/dev/null 2>&1')
-                os.system('git push --quiet >/dev/null 2>&1')
+        if os.system(f'git add "{db_path}" >/dev/null 2>&1') == 0:
+            os.system('git commit -m "更新" >/dev/null 2>&1')
+            os.system('git pull --quiet --rebase')
+            os.system('git push --quiet --force-with-lease')
     except Exception as e:
         print(f"异常: {e}")
         pass
