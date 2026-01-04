@@ -5,7 +5,7 @@ from preferences import prefs
 key = f"{prefs.getTimes()}_{random.uniform(0, 100)}"
 print(key)
 prefs.put("cs", key)
-myset = set()
+IP_LIST = set()
 accounts_list = {}
 
 headers = {
@@ -43,7 +43,9 @@ def verify(proxy):
     except:
         return proxy, False, -1
 
-def lo():
+def load():
+    myset = set()
+    successful_proxies = []
     try:
         with open("src/ips.txt", "r", encoding="utf-8") as f:
             for line in f:
@@ -54,21 +56,17 @@ def lo():
                 myset.add(ip)
     except Exception as e:
         pass
-    """
-    successful_proxies = []
     with ThreadPoolExecutor(max_workers=30) as executor:
         futures = [executor.submit(verify, proxy) for proxy in myset]
         for future in as_completed(futures):
             proxy, is_valid, requestTime = future.result()
             if is_valid:
                 successful_proxies.append((proxy, requestTime))
-                if len(successful_proxies) >= 10: break
     successful_proxies.sort(key=lambda x: x[1])
     print("ip响应时间:")
     for index, (proxy, req_time) in enumerate(successful_proxies, 1):
-        print(f"{index}: {req_time}ms")
-        myset.add(proxy)
-    """
+        print(f"{index}: {proxy} - {req_time}ms")
+        IP_LIST.add(proxy)
 
 def checkIn(user, pwd, ip):
     req = requests.session()
@@ -121,6 +119,8 @@ def checkIn(user, pwd, ip):
                         return True
     except Exception as e:
         print(f"异常{str(e)}")
+        if ip in IP_LIST:
+            IP_LIST.remove(ip)
     return False
 
 def loginhash(data):
@@ -145,52 +145,30 @@ def CDATA(data):
     return ''
 
 def start():
-    keys = list(accounts_list.keys())
-    total = len(keys)
-    for i, username in enumerate(keys):
-        for proxy in myset:
-            try:
+    ACCOUNTS = os.environ.get("ACCOUNTS", "")
+    if not ACCOUNTS:
+        print('github ACCOUNTS变量未设置')
+        exit(1)
+    for duo in ACCOUNTS.split(","):
+        if ':' not in duo:
+            continue
+        username, password = duo.split(':', 1)
+        username = username.strip()
+        password = password.strip()
+        YiQianDao = prefs.get(username, "") == prefs.getTime()
+        if username and password and not YiQianDao:
+            accounts_list[username] = password
+        elif YiQianDao:
+            print(username, "今日已签, 跳过签到")
+    if accounts_list:
+        load()
+    if IP_LIST:
+        keys = list(accounts_list.keys())
+        total = len(keys)
+        for i, username in enumerate(keys):
+            for proxy in IP_LIST:
                 if checkIn(username, accounts_list[username], proxy): break
-            except Exception as e:
-                pass
-        if i < total - 1:
-            time.sleep(3)
+            if i < total - 1:
+                time.sleep(3)
 
-ACCOUNTS = os.environ.get("ACCOUNTS", "")
-IPS = os.environ.get("IPS", "")
-if not IPS:
-    print('github IPS变量未设置')
-    exit(1)
-if not ACCOUNTS:
-    print('github ACCOUNTS变量未设置')
-    exit(1)
-for duo in ACCOUNTS.split(","):
-    if ':' not in duo:
-        continue
-    username, password = duo.split(':', 1)
-    username = username.strip()
-    password = password.strip()
-    YiQianDao = prefs.get(username, "") == prefs.getTime()
-    if username and password and not YiQianDao:
-        accounts_list[username] = password
-    elif YiQianDao:
-        print(username, "今日已签, 跳过签到")
-myset.update([ip for ip in IPS.split("\n") if ip.strip()])
-if accounts_list or not accounts_list:
-    lo()
-    try:
-        with open("y.txt", "w", encoding="utf-8") as f:
-            f.write("\n".join(myset))
-        try:
-            os.system('git config --local user.name "github-actions[bot]" >/dev/null 2>&1')
-            os.system('git config --local user.email "github-actions[bot]@users.noreply.github.com" >/dev/null 2>&1')
-            os.system('git config pull.rebase true >/dev/null 2>&1')
-            os.system(f'git add -A >/dev/null 2>&1')
-            os.system('git commit -m "更新" >/dev/null 2>&1')
-            os.system('git push --quiet --force-with-lease')
-        except Exception as e:
-            pass
-    except Exception as e:
-        pass
-if myset:
-    start()
+start()
